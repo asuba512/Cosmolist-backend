@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_USER": "cosmolist",
+        "MONGO_PASSWORD": "YTen28BnqdghxHb9",
+        "MONGO_DB": "cosmolist-db"
+    }
+}
