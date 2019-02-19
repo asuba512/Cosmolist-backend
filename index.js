@@ -235,7 +235,7 @@ mongoose
         `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@asuba-cluster-b3ayd.mongodb.net/${process.env.MONGO_DB}?retryWrites=true`
     )
     .then(() => {
-        app.listen(8000);
+        app.listen(process.env.PORT);
     })
     .catch(err => {
         console.log(err);
