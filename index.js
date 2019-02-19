@@ -224,8 +224,7 @@ app.use(
                     throw err;
                 }
             }
-        },
-        graphiql: true
+        }
     })
 );
 
