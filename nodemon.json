@@ -1,7 +1,7 @@
 {
     "env": {
         "MONGO_USER": "cosmolist",
-        "MONGO_PASSWORD": "YTen28BnqdghxHb9",
+        "MONGO_PASSWORD": "",
         "MONGO_DB": "cosmolist-db",
         "PORT": 8000
     }

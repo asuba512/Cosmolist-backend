@@ -22,10 +22,6 @@ app.use((req, res, next) => {
     next();
 });
 
-const superpowerLoader = new DataLoader((superpowerIds) => {
-    return Superpower.find({ _id: { $in: superpowerIds } });
-});
-
 const populateCosmonauts = async cosmonautIds => {
     try {
         const fetchedCosmonauts = await Cosmonaut.find({ _id: { $in: cosmonautIds } });
@@ -41,7 +37,7 @@ const populateCosmonauts = async cosmonautIds => {
 const populateSuperpower = async superpower => {
     if (superpower) {
         try {
-            const fetchedSuperpower = await superpowerLoader.load(superpower._id.toString());
+            const fetchedSuperpower = await Superpower.findById(superpower._id);
             return transformSuperpower(fetchedSuperpower);
         }
         catch (err) {
@@ -125,7 +121,7 @@ app.use(
                 try {
                     let superpower = null;
                     if (args.inputCosmonaut.superpower)
-                        superpower = await superpowerLoader.load(args.inputCosmonaut.superpower);
+                        superpower = await Superpower.findById(args.inputCosmonaut.superpower);
                     const cosmonaut = new Cosmonaut({
                         firstname: args.inputCosmonaut.firstname,
                         lastname: args.inputCosmonaut.lastname,
@@ -149,9 +145,9 @@ app.use(
                     let superpower = null;
                     if (!cosmonaut.superpower || (cosmonaut.superpower._id !== args.inputCosmonaut.superpower)) {
                         if (cosmonaut.superpower)
-                            await Superpower.findOneAndUpdate({ _id: cosmonaut.superpower }, { $pull: { users: args.cosmonautId } });
+                            await Superpower.findOneAndUpdate({ _id: cosmonaut.superpower }, { $pull: { users: { $in: [args.cosmonautId] } } });
                         if (args.inputCosmonaut.superpower) {
-                            superpower = await superpowerLoader.load(args.inputCosmonaut.superpower);
+                            superpower = await Superpower.findById(args.inputCosmonaut.superpower);
                             superpower.users.push(cosmonaut);
                             await superpower.save();
                         }
@@ -171,7 +167,7 @@ app.use(
             },
             removeCosmonaut: async (args) => {
                 try {
-                    await Superpower.updateMany({}, { $pull: { users: args.cosmonautId } });
+                    await Superpower.updateMany({}, { $pull: { users: { $in: [args.cosmonautId] } } });
                     const removedCosmonaut = await Cosmonaut.findOneAndDelete({ _id: args.cosmonautId });
                     return await transformCosmonaut(removedCosmonaut);
                 }
@@ -207,7 +203,6 @@ app.use(
                     const superpower = transformSuperpower(await Superpower.findOneAndUpdate({ _id: args.superpowerId }, {
                         $set: { name: args.inputSuperpower.name }
                     }, { new: true }));
-                    superpowerLoader.clear(args.superpowerId);
                     return superpower;
                 }
                 catch (err) {
